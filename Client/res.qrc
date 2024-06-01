@@ -2,5 +2,9 @@
     <qresource prefix="/icons">
         <file>img/menu_icon.png</file>
         <file>img/menu_icon2.png</file>
+        <file>img/user_icon.png</file>
+        <file>img/menu_icon3.png</file>
+        <file>img/menu_icon_16_2.png</file>
+        <file>img/menu_icon16_1.png</file>
     </qresource>
 </RCC>
