@@ -12,7 +12,6 @@
 #include <QtCore/QVariant>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QHBoxLayout>
-#include <QtWidgets/QLabel>
 #include <QtWidgets/QLineEdit>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QVBoxLayout>
@@ -24,7 +23,6 @@ class Ui_authform
 {
 public:
     QVBoxLayout *verticalLayout;
-    QLabel *title_lable;
     QHBoxLayout *login_hlayout;
     QLineEdit *login_edit;
     QHBoxLayout *pass_hlayout;
@@ -37,28 +35,11 @@ public:
     {
         if (authform->objectName().isEmpty())
             authform->setObjectName(QString::fromUtf8("authform"));
-        authform->resize(400, 300);
+        authform->setWindowModality(Qt::ApplicationModal);
+        authform->resize(256, 116);
         authform->setStyleSheet(QString::fromUtf8("background-color: rgb(23, 33, 43)"));
         verticalLayout = new QVBoxLayout(authform);
         verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
-        title_lable = new QLabel(authform);
-        title_lable->setObjectName(QString::fromUtf8("title_lable"));
-        QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
-        sizePolicy.setHorizontalStretch(0);
-        sizePolicy.setVerticalStretch(0);
-        sizePolicy.setHeightForWidth(title_lable->sizePolicy().hasHeightForWidth());
-        title_lable->setSizePolicy(sizePolicy);
-        QFont font;
-        font.setFamilies({QString::fromUtf8("Unispace")});
-        font.setPointSize(24);
-        font.setBold(true);
-        title_lable->setFont(font);
-        title_lable->setStyleSheet(QString::fromUtf8("color: white;"));
-        title_lable->setTextFormat(Qt::AutoText);
-        title_lable->setAlignment(Qt::AlignCenter);
-
-        verticalLayout->addWidget(title_lable);
-
         login_hlayout = new QHBoxLayout();
         login_hlayout->setObjectName(QString::fromUtf8("login_hlayout"));
         login_edit = new QLineEdit(authform);
@@ -118,8 +99,7 @@ public:
 
     void retranslateUi(QWidget *authform)
     {
-        authform->setWindowTitle(QCoreApplication::translate("authform", "Form", nullptr));
-        title_lable->setText(QCoreApplication::translate("authform", "Authorization", nullptr));
+        authform->setWindowTitle(QCoreApplication::translate("authform", "Auth", nullptr));
         login_edit->setPlaceholderText(QCoreApplication::translate("authform", "Login", nullptr));
         pass_edit->setPlaceholderText(QCoreApplication::translate("authform", "Password", nullptr));
         pushButton->setText(QCoreApplication::translate("authform", "Sign up", nullptr));

@@ -111,7 +111,7 @@ void Server::GetAuthUserInfo(QJsonObject jUserInfo)
         }
     }
     QJsonDocument jReqDoc = QJsonDocument{jResObj};
-    QString jReqStr = QString::fromLatin1(jReqDoc.toJson());
+    QString jReqStr = QString(jReqDoc.toJson());
     SendToClient(jReqStr);
 }
 
@@ -158,7 +158,7 @@ void Server::AcceptReqForChats(QString senderUsername)
 
     jResObj.insert("value", jArray);
     QJsonDocument jReqDoc = QJsonDocument{jResObj};
-    QString jReqStr = QString::fromLatin1(jReqDoc.toJson());
+    QString jReqStr = QString(jReqDoc.toJson());
     SendToClient(jReqStr);
 }
 
@@ -183,28 +183,35 @@ void Server::AcceptReqForDialogs(int chatID)
     jResObj.insert("value", jArray);
 
     QJsonDocument jReqDoc = QJsonDocument{jResObj};
-    QString jReqStr = QString::fromLatin1(jReqDoc.toJson());
+    QString jReqStr = QString(jReqDoc.toJson());
     SendToClient(jReqStr);
 }
 
 void Server::AcceptReqForFinduser(QJsonValue searchUser)
 {
     QSqlQuery query;
-    query.prepare("SELECT username FROM user WHERE user.username LIKE :name AND user.username <> :sender");
+    query.prepare("SELECT pk_user, username FROM user WHERE user.username LIKE :name AND user.username <> :sender");
     query.bindValue(":name", "%" + searchUser["username"].toString() + "%");
     query.bindValue(":sender", searchUser["sender"].toString());
     query.exec();
     QSqlRecord rec = query.record();
     QJsonArray jArray;
     while (query.next()){
-        jArray.push_back(query.value(rec.indexOf("username")).toString());
+        QSqlQuery inchat;
+        inchat.prepare("SELECT * FROM ChatParticipant WHERE ChatParticipant.pk_user == :userID AND ChatParticipant.pk_chat == :chatID");
+        inchat.bindValue(":userID", query.value(rec.indexOf("pk_user")).toInt());
+        inchat.bindValue(":chatID", searchUser["pk_chat"].toInt());
+        inchat.exec();
+        qDebug() << query.value(rec.indexOf("pk_user")).toString() << " " << searchUser["pk_chat"];
+        if (!inchat.next()) jArray.push_back(query.value(rec.indexOf("username")).toString());
     }
     QJsonObject jResObj;
-    jResObj.insert("type", "finduser_response");
+    if (searchUser["action"] == "adduser") jResObj.insert("type", "findusertoadd_response");
+    else jResObj.insert("type", "finduser_response");
     jResObj.insert("value", jArray);
 
     QJsonDocument jReqDoc = QJsonDocument{jResObj};
-    QString jReqStr = QString::fromLatin1(jReqDoc.toJson());
+    QString jReqStr = QString(jReqDoc.toJson());
     SendToClient(jReqStr);
 }
 
@@ -232,8 +239,7 @@ void Server::AcceptMessages(QJsonValue message)
         getmess.exec();
 
         QSqlRecord mess = getmess.record();
-        if (getmess.next()) qDebug() << "next";
-        else qDebug() << "error";
+        getmess.next();
         QJsonObject temp = message.toObject();
         temp["text"] = getmess.value(mess.indexOf("timeotpr")).toString() + " " + getmess.value(mess.indexOf("username")).toString() + ": " + getmess.value(mess.indexOf("messtext")).toString();
         qDebug() << "Message is saved in DB!";
@@ -251,7 +257,7 @@ void Server::AcceptReqForCreateChat(QJsonValue chatinfo)
     QSqlQuery same_chat;
     same_chat.prepare("SELECT pk_chat FROM chat WHERE chat.chatname == :chatname1 OR chat.chatname == :chatname2");
     same_chat.bindValue(":chatname1", chatinfo["sender"].toString() + " " + chatinfo["chatname"].toString());
-    same_chat.bindValue(":chatname2", chatinfo["chatname"].toString() + " " + chatinfo["sender"].toString());\
+    same_chat.bindValue(":chatname2", chatinfo["chatname"].toString() + " " + chatinfo["sender"].toString());
     same_chat.exec();
     if (chatinfo["pk_chat"] == -1) {
         if (same_chat.next()) {
@@ -261,7 +267,7 @@ void Server::AcceptReqForCreateChat(QJsonValue chatinfo)
             jResObj.insert("type", "createchat_response");
             jResObj.insert("value", temp);
             QJsonDocument jReqDoc = QJsonDocument{jResObj};
-            QString jReqStr = QString::fromLatin1(jReqDoc.toJson());
+            QString jReqStr = QString(jReqDoc.toJson());
             SendToClient(jReqStr);
             return;
         }
@@ -282,7 +288,7 @@ void Server::AcceptReqForCreateChat(QJsonValue chatinfo)
         jResObj.insert("value", chatinfo);
 
         QJsonDocument jReqDoc = QJsonDocument{jResObj};
-        QString jReqStr = QString::fromLatin1(jReqDoc.toJson());
+        QString jReqStr = QString(jReqDoc.toJson());
         SendToClient(jReqStr);
         return;
     }
@@ -307,12 +313,91 @@ void Server::AcceptReqForCreateChat(QJsonValue chatinfo)
 
         if (create_chatp.exec()) qDebug() << "Chat participant " << users.value(rec.indexOf("pk_user")).toInt() << "was created!";
         else qDebug() << "Error create CP " << users.value(rec.indexOf("pk_user")).toInt() << "!";
-        qDebug() << create_chatp.lastError();
+     qDebug() << create_chatp.lastError();
     }
 
     QJsonDocument jReqDoc = QJsonDocument{jResObj};
-    QString jReqStr = QString::fromLatin1(jReqDoc.toJson());
+    QString jReqStr = QString(jReqDoc.toJson());
     SendToClient(jReqStr);
+}
+
+void Server::AcceptReqForCreateGroupChat(QJsonValue chatinfo)
+{
+    QJsonObject jResObj, temp;
+    jResObj.insert("type", "creategroupchat_response");
+    QSqlQuery same_chat;
+    same_chat.prepare("SELECT pk_chat FROM chat WHERE chat.chatname == :chatname");
+    same_chat.bindValue(":chatname", chatinfo["chatname"].toString() + " " + chatinfo["sender"].toString());
+    same_chat.exec();
+    if (same_chat.next()) {
+        temp.insert("return", -1);
+    }
+    else {
+    QSqlQuery create_chat;
+    create_chat.prepare("INSERT INTO chat (chatname, isPersonal) VALUES (:chatname, :isPersonal)");
+    create_chat.bindValue(":chatname", chatinfo["chatname"].toString());
+    create_chat.bindValue(":isPersonal", false);
+    create_chat.exec();
+
+    int chatID = create_chat.lastInsertId().toInt();
+
+    QSqlQuery create_chatp, users;
+    users.prepare("SELECT pk_user FROM User WHERE user.username == :sender");
+    users.bindValue(":sender", chatinfo["sender"].toString());
+    users.exec();
+
+    QSqlRecord rec = users.record();
+    users.next();
+    create_chatp.prepare("INSERT INTO ChatParticipant (pk_user, pk_chat) VALUES (:user, :chat)");
+    create_chatp.bindValue(":user", users.value(rec.indexOf("pk_user")).toInt());
+    create_chatp.bindValue(":chat", chatID);
+
+    if (create_chatp.exec()) qDebug() << "Chat participant " << users.value(rec.indexOf("pk_user")).toInt() << "was created!";
+    else qDebug() << "Error create CP " << users.value(rec.indexOf("pk_user")).toInt() << "!";
+    qDebug() << create_chatp.lastError();
+
+    temp.insert("return", 0);
+    temp.insert("pk_chat", chatID);
+    temp.insert("chatname", chatinfo["chatname"].toString());
+    }
+    qDebug() << temp    ;
+    jResObj.insert("value", temp);
+    QJsonDocument jReqDoc = QJsonDocument{jResObj};
+    QString jReqStr = QString(jReqDoc.toJson());
+    SendToClient(jReqStr);
+}
+
+void Server::AcceptReqToAddUserInChat(QJsonValue users)
+{
+    QSqlQuery create_chatp, user, chats;
+    for (auto it : users["users"].toArray()) {
+        user.prepare("SELECT pk_user, username FROM User WHERE user.username == :username");
+        user.bindValue(":username", it.toString());
+        user.exec();
+
+        chats.prepare("SELECT pk_chat FROM chat WHERE chat.pk_chat == :chatID");
+        chats.bindValue(":chatID", users["pk_chat"].toInt());
+        chats.exec();
+
+        QSqlRecord rec = user.record(), rec2 = chats.record();
+        chats.next();
+        if (user.next()){
+            create_chatp.prepare("INSERT INTO ChatParticipant (pk_user, pk_chat) VALUES (:user, :chat)");
+            create_chatp.bindValue(":user", user.value(rec.indexOf("pk_user")).toInt());
+            create_chatp.bindValue(":chat", chats.value(rec2.indexOf("pk_chat")).toInt());
+
+            if (create_chatp.exec()) qDebug() << "Chat participant " << user.value(rec.indexOf("pk_user")).toInt() << "was created!";
+            else qDebug() << "Error create CP " << user.value(rec.indexOf("pk_user")).toInt() << "!";
+
+            auto it = sockets.value(user.value(rec.indexOf("username")).toString());
+            QJsonObject jResObj;
+            jResObj.insert("type", "update_chats");
+            jResObj.insert("value", "");
+            QJsonDocument jReqDoc = QJsonDocument{jResObj};
+            QString jReqStr = QString(jReqDoc.toJson());
+            SendToClient(jReqStr, it);
+        }
+    }
 }
 
 void Server::AcceptJSONMess(QString str)
@@ -339,6 +424,12 @@ void Server::AcceptJSONMess(QString str)
     else if (jObj["type"] == "createchat_request") {
         AcceptReqForCreateChat(jObj["value"]);
     }
+    else if (jObj["type"] == "creategroupchat_request"){
+        AcceptReqForCreateGroupChat(jObj["value"]);
+    }
+    else if (jObj["type"] == "adduserstochat_request") {
+        AcceptReqToAddUserInChat(jObj["value"]);
+    }
     else qDebug() << "Can't recognize JSON type!";
 }
 
@@ -349,7 +440,7 @@ void Server::SendSignalToUpdateDialog(QJsonValue message)
     jResObj.insert("value", message);
 
     QJsonDocument jReqDoc = QJsonDocument{jResObj};
-    QString jReqStr = QString::fromLatin1(jReqDoc.toJson());
+    QString jReqStr = QString(jReqDoc.toJson());
 
     // SEND SIGNAL TO ALL CHAT PARTICIPANT
     QSqlQuery chatp;
@@ -361,7 +452,7 @@ void Server::SendSignalToUpdateDialog(QJsonValue message)
     while (chatp.next()) {
         auto it = sockets.value(chatp.value(rec.indexOf("username")).toString());
         QJsonDocument jReqDoc = QJsonDocument{jResObj};
-        QString jReqStr = QString::fromLatin1(jReqDoc.toJson());
+        QString jReqStr = QString(jReqDoc.toJson());
         SendToClient(jReqStr, it);
     }
 }

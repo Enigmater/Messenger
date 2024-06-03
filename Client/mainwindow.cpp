@@ -12,6 +12,16 @@ MainWindow::MainWindow(QWidget *parent)
     connect(authF, &authform::signalAuthComplete, this, &MainWindow::slotAuthComplete);
     connect(this, &MainWindow::signalAuthError, authF, &authform::slotAuthError);
 
+    groupF = new NewGroup;
+    connect(groupF, &NewGroup::cancelPressed, this, &MainWindow::cancelGroupCreate);
+    connect(groupF, &NewGroup::nextPressed, this, &MainWindow::nextGroupCreate);
+
+    adduserF = new AddUserToChat;
+    connect(adduserF, &AddUserToChat::signalCancel, this, &MainWindow::slotCancelAdd);
+    connect(adduserF, &AddUserToChat::signalAddUser, this, &MainWindow::slotAddUser);
+
+    ui->adduserButton->hide();
+
     socket = new QTcpSocket(this);
     connect(socket, &QTcpSocket::readyRead, this, &MainWindow::slotReadyRead);
     connect(socket, &QTcpSocket::disconnected, this, &MainWindow::deleteLater);
@@ -29,7 +39,7 @@ void MainWindow::SendReqForChats()
     jResObj.insert("type", "chats_request");
     jResObj.insert("value", this->username);
     QJsonDocument jReqDoc = QJsonDocument(jResObj);
-    QString jReqStr = QString::fromLatin1(jReqDoc.toJson());
+    QString jReqStr = QString(jReqDoc.toJson());
     SendToServer(jReqStr);
 }
 
@@ -40,7 +50,18 @@ void MainWindow::SendReqForCreateChat(QJsonObject obj)
     jResObj.insert("value", obj);
 
     QJsonDocument jReqDoc = QJsonDocument(jResObj);
-    QString jReqStr = QString::fromLatin1(jReqDoc.toJson());
+    QString jReqStr = QString(jReqDoc.toJson());
+    SendToServer(jReqStr);
+}
+
+void MainWindow::SendReqForCreateGroupChat(QJsonObject obj)
+{
+    QJsonObject jResObj;
+    jResObj.insert("type", "creategroupchat_request");
+    jResObj.insert("value", obj);
+
+    QJsonDocument jReqDoc = QJsonDocument(jResObj);
+    QString jReqStr = QString(jReqDoc.toJson());
     SendToServer(jReqStr);
 }
 
@@ -69,7 +90,16 @@ void MainWindow::AcceptJSONMess(QString str)
     else if (jObj["type"] == "createchat_response") {
         AcceptCreateChatResponse(jObj["value"]);
     }
-    else if (jObj["type"] == "update_dialog"){
+    else if (jObj["type"] == "creategroupchat_response") {
+        AcceptCreateChatResponse(jObj["value"]);
+    }
+    else if (jObj["type"] == "findusertoadd_response"){
+        AcceptFindToAddResponse(jObj["value"]);
+    }
+    else if (jObj["type"] == "update_chats"){
+        SendReqForChats();
+    }
+    else if (jObj["type"] == "update_dialog") {
         QJsonValue value = jObj["value"];
         ui->chat_browser->append(value["text"].toString());
         qDebug() << "GET UPDATE SIGNAL " << value["text"].toString();
@@ -90,7 +120,6 @@ void MainWindow::AcceptAuthResponse(QJsonValue value)
     }
 }
 
-
 void MainWindow::AcceptMessResponse(QJsonValue value)
 {
     ui->chat_browser->clear();
@@ -108,14 +137,21 @@ void MainWindow::AcceptMessResponse(QJsonValue value)
 void MainWindow::AcceptCreateChatResponse(QJsonValue value)
 {
     currentChat = value["pk_chat"].toInt();
-    qDebug() << "Current chat set to " << currentChat;
+
+    if (value["chatname"].toString() != "") ui->userinfo_lable->setText(value["chatname"].toString());
     QJsonObject jResObj;
     jResObj.insert("type", "dialog_request");
     jResObj.insert("value",  currentChat);
 
     QJsonDocument jReqDoc = QJsonDocument{jResObj};
-    QString jReqStr = QString::fromLatin1(jReqDoc.toJson());
+    QString jReqStr = QString(jReqDoc.toJson());
     SendToServer(jReqStr);
+}
+
+void MainWindow::AcceptFindToAddResponse(QJsonValue value)
+{
+    adduserF->SetUsers(value.toArray());
+    adduserF->show();
 }
 
 void MainWindow::CreateUsersFromArray(QJsonValue value)
@@ -138,6 +174,7 @@ void MainWindow::CreateUsersFromArray(QJsonValue value)
              else cname = list[0];
              dialog->setText(cname);
              dialog->SetChatID(value1["pk_chat"].toInt());
+             dialog->setType(value1["chat_type"].toBool());
          }
          else {
              dialog->setText(value1.toString());
@@ -194,10 +231,53 @@ void MainWindow::slotAuthComplete(QJsonObject userinfo)
     jResObj.insert("type", "auth");
     jResObj.insert("value", userinfo);
     QJsonDocument jReqDoc = QJsonDocument(jResObj);
-    QString jReqStr = QString::fromLatin1(jReqDoc.toJson());
+    QString jReqStr = QString(jReqDoc.toJson());
     SendToServer(jReqStr);
     QJsonValue user = userinfo["user"];
     this->username = user["login"].toString();
+}
+
+void MainWindow::cancelGroupCreate()
+{
+    this->groupF->close();
+    ui->splitter->setGraphicsEffect(nullptr);
+    ui->splitter->setEnabled(true);
+}
+
+void MainWindow::nextGroupCreate(QString groupName)
+{
+    this->groupF->close();
+    ui->splitter->setGraphicsEffect(nullptr);
+    ui->splitter->setEnabled(true);
+
+    QJsonObject jResObj;
+    jResObj.insert("sender", this->username);
+    jResObj.insert("chatname", groupName);
+    SendReqForCreateGroupChat(jResObj);
+    SendReqForChats();
+}
+
+void MainWindow::slotCancelAdd()
+{
+    this->adduserF->close();
+    ui->splitter->setGraphicsEffect(nullptr);
+    ui->splitter->setEnabled(true);
+}
+
+void MainWindow::slotAddUser(QJsonObject users)
+{
+    this->adduserF->close();
+    ui->splitter->setGraphicsEffect(nullptr);
+    ui->splitter->setEnabled(true);
+
+    QJsonObject jResObj;
+    users.insert("pk_chat", this->currentChat);
+    jResObj.insert("type", "adduserstochat_request");
+    jResObj.insert("value", users);
+    QJsonDocument jReqDoc = QJsonDocument{jResObj};
+    QString jReqStr = QString(jReqDoc.toJson());
+    SendToServer(jReqStr);
+
 }
 
 void MainWindow::slotDialogButtonClicked()
@@ -213,6 +293,10 @@ void MainWindow::slotDialogButtonClicked()
     temp.insert("chatname", button->text());
 
     SendReqForCreateChat(temp);
+
+    if (!button->isPublic()) ui->adduserButton->show();
+    else ui->adduserButton->hide();
+
     if (ui->searchLine->text() != "") {
         ui->searchLine->clear();
         SendReqForChats();
@@ -241,7 +325,7 @@ void MainWindow::on_mess_edit_returnPressed()
     mess.insert("text", ui->mess_edit->text());
     jResObj.insert("value", mess);
     QJsonDocument jReqDoc = QJsonDocument{jResObj};
-    QString jReqStr = QString::fromLatin1(jReqDoc.toJson());
+    QString jReqStr = QString(jReqDoc.toJson());
     SendToServer(jReqStr);
 }
 
@@ -270,7 +354,7 @@ void MainWindow::on_searchLine_textChanged(const QString &arg1)
     temp.insert("sender", this->username);
     jResObj.insert("value", temp);
     QJsonDocument jReqDoc = QJsonDocument{jResObj};
-    QString jReqStr = QString::fromLatin1(jReqDoc.toJson());
+    QString jReqStr = QString(jReqDoc.toJson());
     SendToServer(jReqStr);
 }
 
@@ -278,12 +362,42 @@ void MainWindow::on_menuButton_clicked()
 {
     ui->slidebarMenu->show();
     ui->splitter->hide();
-    //QGraphicsBlurEffect* effect = new QGraphicsBlurEffect;
-    //ui->splitter->setGraphicsEffect(effect);
+
+    ui->usernameLabel->setText(this->username);
 }
 
 void MainWindow::on_pushButton_clicked()
 {
     ui->slidebarMenu->hide();
     ui->splitter->show();
+}
+
+void MainWindow::on_groupChatButton_clicked()
+{
+    ui->slidebarMenu->hide();
+    ui->splitter->show();
+    ui->splitter->setEnabled(false);
+    QGraphicsBlurEffect* blur = new QGraphicsBlurEffect;
+    ui->splitter->setGraphicsEffect(blur);
+
+    groupF->show();
+}
+
+void MainWindow::on_adduserButton_clicked()
+{
+    // GET USERS
+    QJsonObject jResObj, temp;
+    jResObj.insert("type", "finduser_request");
+    temp.insert("action", "adduser");
+    temp.insert("username", "");
+    temp.insert("sender", this->username);
+    temp.insert("pk_chat", this->currentChat);
+    jResObj.insert("value", temp);
+    QJsonDocument jReqDoc = QJsonDocument{jResObj};
+    QString jReqStr = QString(jReqDoc.toJson());
+    SendToServer(jReqStr);
+
+    QGraphicsBlurEffect* blur = new QGraphicsBlurEffect;
+    ui->splitter->setEnabled(false);
+    ui->splitter->setGraphicsEffect(blur);
 }

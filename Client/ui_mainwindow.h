@@ -10,6 +10,7 @@
 #define UI_MAINWINDOW_H
 
 #include <QtCore/QVariant>
+#include <QtGui/QIcon>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QFrame>
 #include <QtWidgets/QHBoxLayout>
@@ -36,11 +37,18 @@ public:
     QWidget *widget;
     QVBoxLayout *verticalLayout_4;
     QWidget *userInfo;
+    QHBoxLayout *horizontalLayout_6;
+    QLabel *userlogoLabel;
+    QLabel *usernameLabel;
     QFrame *line;
-    QSpacerItem *verticalSpacer_2;
     QWidget *buttons;
     QVBoxLayout *verticalLayout_7;
+    QPushButton *groupChatButton;
+    QSpacerItem *verticalSpacer_2;
     QWidget *about;
+    QVBoxLayout *verticalLayout_8;
+    QLabel *label;
+    QLabel *label_2;
     QPushButton *pushButton;
     QSplitter *splitter;
     QWidget *leftContainer;
@@ -63,6 +71,7 @@ public:
     QFrame *infoAbout_hframe;
     QHBoxLayout *horizontalLayout_3;
     QLabel *userinfo_lable;
+    QPushButton *adduserButton;
     QFrame *dialog_hframe;
     QHBoxLayout *horizontalLayout;
     QTextBrowser *chat_browser;
@@ -74,7 +83,7 @@ public:
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QString::fromUtf8("MainWindow"));
-        MainWindow->resize(800, 600);
+        MainWindow->resize(729, 621);
         MainWindow->setMaximumSize(QSize(16777215, 1000));
         MainWindow->setStyleSheet(QString::fromUtf8("QScrollBar:vertical {\n"
 "	background-color: rgb(145, 150, 155);\n"
@@ -115,7 +124,7 @@ public:
         horizontalLayout_7->setContentsMargins(0, 0, 0, 0);
         widget = new QWidget(slidebarMenu);
         widget->setObjectName(QString::fromUtf8("widget"));
-        widget->setMinimumSize(QSize(0, 0));
+        widget->setMinimumSize(QSize(250, 0));
         widget->setMaximumSize(QSize(250, 16777215));
         verticalLayout_4 = new QVBoxLayout(widget);
         verticalLayout_4->setObjectName(QString::fromUtf8("verticalLayout_4"));
@@ -124,6 +133,23 @@ public:
         userInfo->setObjectName(QString::fromUtf8("userInfo"));
         userInfo->setMinimumSize(QSize(0, 100));
         userInfo->setMaximumSize(QSize(16777215, 100));
+        horizontalLayout_6 = new QHBoxLayout(userInfo);
+        horizontalLayout_6->setObjectName(QString::fromUtf8("horizontalLayout_6"));
+        userlogoLabel = new QLabel(userInfo);
+        userlogoLabel->setObjectName(QString::fromUtf8("userlogoLabel"));
+        userlogoLabel->setMaximumSize(QSize(50, 50));
+        userlogoLabel->setBaseSize(QSize(50, 50));
+        userlogoLabel->setPixmap(QPixmap(QString::fromUtf8(":/icons/img/user_icon.png")));
+
+        horizontalLayout_6->addWidget(userlogoLabel);
+
+        usernameLabel = new QLabel(userInfo);
+        usernameLabel->setObjectName(QString::fromUtf8("usernameLabel"));
+        usernameLabel->setStyleSheet(QString::fromUtf8("color: rgb(127, 145, 164);\n"
+"font: bold 1.2rem \"Open Sans\", sans-serif;"));
+
+        horizontalLayout_6->addWidget(usernameLabel);
+
 
         verticalLayout_4->addWidget(userInfo);
 
@@ -134,14 +160,36 @@ public:
 
         verticalLayout_4->addWidget(line);
 
-        verticalSpacer_2 = new QSpacerItem(20, 402, QSizePolicy::Minimum, QSizePolicy::Expanding);
-
-        verticalLayout_4->addItem(verticalSpacer_2);
-
         buttons = new QWidget(widget);
         buttons->setObjectName(QString::fromUtf8("buttons"));
+        buttons->setStyleSheet(QString::fromUtf8("QPushButton {\n"
+"                        background-color: rgb(23, 33, 43);\n"
+"                        color: rgb(245, 245, 245);\n"
+"                        text-align: left;\n"
+"                        padding-left: 9px;\n"
+"                        font: 1.2rem \"Open Sans\", sans-serif;\n"
+"                        }\n"
+"                        QDynamicButton:hover {\n"
+"                        background-color: rgb(32, 43, 54);\n"
+"                        border: 0\n"
+"                        }"));
         verticalLayout_7 = new QVBoxLayout(buttons);
         verticalLayout_7->setObjectName(QString::fromUtf8("verticalLayout_7"));
+        groupChatButton = new QPushButton(buttons);
+        groupChatButton->setObjectName(QString::fromUtf8("groupChatButton"));
+        groupChatButton->setMinimumSize(QSize(0, 40));
+        QIcon icon;
+        icon.addFile(QString::fromUtf8(":/icons/img/group.png"), QSize(), QIcon::Normal, QIcon::Off);
+        groupChatButton->setIcon(icon);
+        groupChatButton->setIconSize(QSize(20, 20));
+        groupChatButton->setFlat(true);
+
+        verticalLayout_7->addWidget(groupChatButton);
+
+        verticalSpacer_2 = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
+
+        verticalLayout_7->addItem(verticalSpacer_2);
+
 
         verticalLayout_4->addWidget(buttons);
 
@@ -149,6 +197,22 @@ public:
         about->setObjectName(QString::fromUtf8("about"));
         about->setMinimumSize(QSize(0, 50));
         about->setMaximumSize(QSize(16777215, 50));
+        verticalLayout_8 = new QVBoxLayout(about);
+        verticalLayout_8->setObjectName(QString::fromUtf8("verticalLayout_8"));
+        label = new QLabel(about);
+        label->setObjectName(QString::fromUtf8("label"));
+        label->setStyleSheet(QString::fromUtf8("color: rgb(127, 145, 164);\n"
+"font: bold 1.2rem \"Open Sans\", sans-serif;"));
+
+        verticalLayout_8->addWidget(label);
+
+        label_2 = new QLabel(about);
+        label_2->setObjectName(QString::fromUtf8("label_2"));
+        label_2->setStyleSheet(QString::fromUtf8("color: rgb(127, 145, 164);\n"
+"font: 1.2rem \"Open Sans\", sans-serif;"));
+
+        verticalLayout_8->addWidget(label_2);
+
 
         verticalLayout_4->addWidget(about);
 
@@ -269,7 +333,7 @@ public:
         scrollArea->setWidgetResizable(true);
         scrollAreaWidgetContents = new QWidget();
         scrollAreaWidgetContents->setObjectName(QString::fromUtf8("scrollAreaWidgetContents"));
-        scrollAreaWidgetContents->setGeometry(QRect(0, 0, 279, 548));
+        scrollAreaWidgetContents->setGeometry(QRect(0, 0, 174, 569));
         verticalLayout_5 = new QVBoxLayout(scrollAreaWidgetContents);
         verticalLayout_5->setObjectName(QString::fromUtf8("verticalLayout_5"));
         verticalLayout_5->setContentsMargins(0, 0, 0, 0);
@@ -309,12 +373,33 @@ public:
         infoAbout_hframe->setFrameShadow(QFrame::Raised);
         horizontalLayout_3 = new QHBoxLayout(infoAbout_hframe);
         horizontalLayout_3->setObjectName(QString::fromUtf8("horizontalLayout_3"));
+        horizontalLayout_3->setContentsMargins(-1, 9, -1, -1);
         userinfo_lable = new QLabel(infoAbout_hframe);
         userinfo_lable->setObjectName(QString::fromUtf8("userinfo_lable"));
         userinfo_lable->setStyleSheet(QString::fromUtf8("color: rgb(127, 145, 164);\n"
 "font: 1.2rem \"Open Sans\", sans-serif;"));
 
         horizontalLayout_3->addWidget(userinfo_lable);
+
+        adduserButton = new QPushButton(infoAbout_hframe);
+        adduserButton->setObjectName(QString::fromUtf8("adduserButton"));
+        adduserButton->setMinimumSize(QSize(40, 40));
+        adduserButton->setMaximumSize(QSize(40, 40));
+        adduserButton->setStyleSheet(QString::fromUtf8("QPushButton{\n"
+"	background-color: rgba(0,0,0,0);\n"
+"    background-image: url(\":/icons/img/adduser1.png\");\n"
+"    background-repeat: no-repeat;\n"
+"	background-position: center;\n"
+"}\n"
+"QPushButton:hover {\n"
+"	background-image: url(\":/icons/img/adduser2.png\");\n"
+"    background-repeat: no-repeat;\n"
+"	background-position: center;\n"
+"}\n"
+""));
+        adduserButton->setFlat(false);
+
+        horizontalLayout_3->addWidget(adduserButton);
 
 
         verticalLayout_3->addWidget(infoAbout_hframe);
@@ -371,12 +456,18 @@ public:
     void retranslateUi(QMainWindow *MainWindow)
     {
         MainWindow->setWindowTitle(QCoreApplication::translate("MainWindow", "Messanger", nullptr));
+        userlogoLabel->setText(QString());
+        usernameLabel->setText(QCoreApplication::translate("MainWindow", "username", nullptr));
+        groupChatButton->setText(QCoreApplication::translate("MainWindow", "New Group", nullptr));
+        label->setText(QCoreApplication::translate("MainWindow", "MyMessenger Desktop", nullptr));
+        label_2->setText(QCoreApplication::translate("MainWindow", "Verison 1.5 x64", nullptr));
         pushButton->setText(QString());
         menuButton->setText(QString());
         searchLine->setInputMask(QString());
         searchLine->setText(QString());
         searchLine->setPlaceholderText(QCoreApplication::translate("MainWindow", "Search", nullptr));
-        userinfo_lable->setText(QCoreApplication::translate("MainWindow", "User Name", nullptr));
+        userinfo_lable->setText(QCoreApplication::translate("MainWindow", "Select chat", nullptr));
+        adduserButton->setText(QString());
         mess_edit->setInputMask(QString());
         mess_edit->setPlaceholderText(QCoreApplication::translate("MainWindow", "Write a message...", nullptr));
     } // retranslateUi

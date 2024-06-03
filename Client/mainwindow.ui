@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>600</height>
+    <width>729</width>
+    <height>621</height>
    </rect>
   </property>
   <property name="maximumSize">
@@ -97,7 +97,7 @@ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical{
         <widget class="QWidget" name="widget" native="true">
          <property name="minimumSize">
           <size>
-           <width>0</width>
+           <width>250</width>
            <height>0</height>
           </size>
          </property>
@@ -134,6 +134,41 @@ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical{
               <height>100</height>
              </size>
             </property>
+            <layout class="QHBoxLayout" name="horizontalLayout_6">
+             <item>
+              <widget class="QLabel" name="userlogoLabel">
+               <property name="maximumSize">
+                <size>
+                 <width>50</width>
+                 <height>50</height>
+                </size>
+               </property>
+               <property name="baseSize">
+                <size>
+                 <width>50</width>
+                 <height>50</height>
+                </size>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+               <property name="pixmap">
+                <pixmap resource="res.qrc">:/icons/img/user_icon.png</pixmap>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="usernameLabel">
+               <property name="styleSheet">
+                <string notr="true">color: rgb(127, 145, 164);
+font: bold 1.2rem &quot;Open Sans&quot;, sans-serif;</string>
+               </property>
+               <property name="text">
+                <string>username</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </widget>
           </item>
           <item>
@@ -144,21 +179,61 @@ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical{
            </widget>
           </item>
           <item>
-           <spacer name="verticalSpacer_2">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>20</width>
-              <height>402</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item>
            <widget class="QWidget" name="buttons" native="true">
-            <layout class="QVBoxLayout" name="verticalLayout_7"/>
+            <property name="styleSheet">
+             <string notr="true">QPushButton {
+                        background-color: rgb(23, 33, 43);
+                        color: rgb(245, 245, 245);
+                        text-align: left;
+                        padding-left: 9px;
+                        font: 1.2rem &quot;Open Sans&quot;, sans-serif;
+                        }
+                        QDynamicButton:hover {
+                        background-color: rgb(32, 43, 54);
+                        border: 0
+                        }</string>
+            </property>
+            <layout class="QVBoxLayout" name="verticalLayout_7">
+             <item>
+              <widget class="QPushButton" name="groupChatButton">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>40</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>New Group</string>
+               </property>
+               <property name="icon">
+                <iconset resource="res.qrc">
+                 <normaloff>:/icons/img/group.png</normaloff>:/icons/img/group.png</iconset>
+               </property>
+               <property name="iconSize">
+                <size>
+                 <width>20</width>
+                 <height>20</height>
+                </size>
+               </property>
+               <property name="flat">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="verticalSpacer_2">
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>20</width>
+                 <height>40</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
            </widget>
           </item>
           <item>
@@ -175,6 +250,30 @@ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical{
               <height>50</height>
              </size>
             </property>
+            <layout class="QVBoxLayout" name="verticalLayout_8">
+             <item>
+              <widget class="QLabel" name="label">
+               <property name="styleSheet">
+                <string notr="true">color: rgb(127, 145, 164);
+font: bold 1.2rem &quot;Open Sans&quot;, sans-serif;</string>
+               </property>
+               <property name="text">
+                <string>MyMessenger Desktop</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="label_2">
+               <property name="styleSheet">
+                <string notr="true">color: rgb(127, 145, 164);
+font: 1.2rem &quot;Open Sans&quot;, sans-serif;</string>
+               </property>
+               <property name="text">
+                <string>Verison 1.5 x64</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </widget>
           </item>
          </layout>
@@ -446,8 +545,8 @@ QPushButton#menuButton:hover {
                   <rect>
                    <x>0</x>
                    <y>0</y>
-                   <width>279</width>
-                   <height>548</height>
+                   <width>174</width>
+                   <height>569</height>
                   </rect>
                  </property>
                  <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -541,6 +640,9 @@ QPushButton#menuButton:hover {
            <enum>QFrame::Raised</enum>
           </property>
           <layout class="QHBoxLayout" name="horizontalLayout_3">
+           <property name="topMargin">
+            <number>9</number>
+           </property>
            <item>
             <widget class="QLabel" name="userinfo_lable">
              <property name="styleSheet">
@@ -548,7 +650,43 @@ QPushButton#menuButton:hover {
 font: 1.2rem &quot;Open Sans&quot;, sans-serif;</string>
              </property>
              <property name="text">
-              <string>User Name</string>
+              <string>Select chat</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="adduserButton">
+             <property name="minimumSize">
+              <size>
+               <width>40</width>
+               <height>40</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>40</width>
+               <height>40</height>
+              </size>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">QPushButton{
+	background-color: rgba(0,0,0,0);
+    background-image: url(&quot;:/icons/img/adduser1.png&quot;);
+    background-repeat: no-repeat;
+	background-position: center;
+}
+QPushButton:hover {
+	background-image: url(&quot;:/icons/img/adduser2.png&quot;);
+    background-repeat: no-repeat;
+	background-position: center;
+}
+</string>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+             <property name="flat">
+              <bool>false</bool>
              </property>
             </widget>
            </item>
@@ -628,6 +766,8 @@ border: 0;</string>
    </layout>
   </widget>
  </widget>
- <resources/>
+ <resources>
+  <include location="res.qrc"/>
+ </resources>
  <connections/>
 </ui>

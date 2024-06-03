@@ -15,9 +15,13 @@ public:
     void SetChatID(int id) {this->chatID = id;}
     int GetChatID() {return this->chatID;}
 
+    void setType(bool type) {this->type = type;}
+    bool isPublic() {return this->type;}
+
 private:
     int buttonID = 0;
     int chatID = 0;
+    bool type;
 };
 
 #endif // QDYNAMICBYTTONN_H

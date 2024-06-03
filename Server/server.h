@@ -43,6 +43,8 @@ private:
     void AcceptReqForFinduser(QJsonValue searchUser);
     void AcceptMessages(QJsonValue message);
     void AcceptReqForCreateChat(QJsonValue chatinfo);
+    void AcceptReqForCreateGroupChat(QJsonValue chatinfo);
+    void AcceptReqToAddUserInChat(QJsonValue users);
     void AcceptJSONMess(QString str);
 
     void SendSignalToUpdateDialog(QJsonValue message);

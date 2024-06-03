@@ -7,6 +7,8 @@
 #include <QMessageBox>
 #include <QPushButton>
 
+#include <QCryptographicHash>
+
 namespace Ui {
 class authform;
 }

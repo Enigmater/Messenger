@@ -6,5 +6,10 @@
         <file>img/menu_icon3.png</file>
         <file>img/menu_icon_16_2.png</file>
         <file>img/menu_icon16_1.png</file>
+        <file>img/adduser1.png</file>
+        <file>img/adduser2.png</file>
+        <file>img/icons8-search-16.png</file>
+        <file>img/icons8-search-50.png</file>
+        <file>img/group.png</file>
     </qresource>
 </RCC>
